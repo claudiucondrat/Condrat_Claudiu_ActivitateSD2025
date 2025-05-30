@@ -1,0 +1,195 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+struct NodGraf {
+    int id;
+    char nume[30];
+    int* vecini;
+    int numarVecini;
+};
+typedef struct NodGraf NodGraf;
+
+struct Graf {
+    NodGraf* noduri;
+    int numarNoduri;
+};
+typedef struct Graf Graf;
+
+Graf* creeazaGraf(int dimensiune) {
+    Graf* graf = malloc(sizeof(Graf));
+    graf->noduri = malloc(dimensiune * sizeof(NodGraf));
+    graf->numarNoduri = 0;
+    return graf;
+}
+
+void adaugaNod(Graf* graf, int id, char* nume) {
+    graf->noduri[graf->numarNoduri].id = id;
+    strcpy(graf->noduri[graf->numarNoduri].nume, nume);
+    graf->noduri[graf->numarNoduri].vecini = malloc(5 * sizeof(int));
+    graf->noduri[graf->numarNoduri].numarVecini = 0;
+    graf->numarNoduri++;
+}
+
+void adaugaMuchie(Graf* graf, int id1, int id2) {
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        if (graf->noduri[i].id == id1) {
+            graf->noduri[i].vecini[graf->noduri[i].numarVecini] = id2;
+            graf->noduri[i].numarVecini++;
+            break;
+        }
+    }
+}
+
+void afiseazaGraf(Graf* graf) {
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        printf("Nod %d (%s) -> ", graf->noduri[i].id, graf->noduri[i].nume);
+        
+        if (graf->noduri[i].numarVecini == 0) {
+            printf("nimic");
+        } else {
+            for (int j = 0; j < graf->noduri[i].numarVecini; j++) {
+                printf("%d", graf->noduri[i].vecini[j]);
+                if (j < graf->noduri[i].numarVecini - 1) {
+                    printf(", ");
+                }
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void exercitiul1_NumaraVecini() {
+    
+    Graf* graf = creeazaGraf(5);
+    
+    adaugaNod(graf, 1, "A");
+    adaugaNod(graf, 2, "B");
+    adaugaNod(graf, 3, "C");
+    
+    adaugaMuchie(graf, 1, 2);
+    adaugaMuchie(graf, 1, 3);
+    adaugaMuchie(graf, 2, 3);
+    
+    afiseazaGraf(graf);
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        printf("Nodul %d are %d vecini\n", 
+               graf->noduri[i].id, graf->noduri[i].numarVecini);
+    }
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        free(graf->noduri[i].vecini);
+    }
+    free(graf->noduri);
+    free(graf);
+    printf("\n");
+}
+
+void exercitiul2_GasesteCelMaiPopular() {
+    // cauta nodul cu cei mai multi vecini
+    Graf* graf = creeazaGraf(5);
+    
+    adaugaNod(graf, 1, "Ana");
+    adaugaNod(graf, 2, "Bob");
+    adaugaNod(graf, 3, "Carol");
+    adaugaNod(graf, 4, "Dan");
+    
+    adaugaMuchie(graf, 1, 2);
+    adaugaMuchie(graf, 1, 3);
+    adaugaMuchie(graf, 1, 4);
+    adaugaMuchie(graf, 2, 3);
+    adaugaMuchie(graf, 4, 2);
+    
+    afiseazaGraf(graf);
+    
+    int maxVecini = 0;
+    int nodPopular = -1;
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        if (graf->noduri[i].numarVecini > maxVecini) {
+            maxVecini = graf->noduri[i].numarVecini;
+            nodPopular = graf->noduri[i].id;
+        }
+    }
+    
+    printf("Cel mai popular nod: %d cu %d vecini\n", nodPopular, maxVecini);
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        free(graf->noduri[i].vecini);
+    }
+    free(graf->noduri);
+    free(graf);
+    printf("\n");
+}
+
+void exercitiul3_VerificaConnexiune() {
+    // daca doua noduri sunt conectate direct
+    Graf* graf = creeazaGraf(4);
+    
+    adaugaNod(graf, 1, "Casa");
+    adaugaNod(graf, 2, "Magazin");
+    adaugaNod(graf, 3, "Parc");
+    adaugaNod(graf, 4, "Scoala");
+    
+    adaugaMuchie(graf, 1, 2);
+    adaugaMuchie(graf, 2, 3);
+    adaugaMuchie(graf, 1, 4);
+    
+    afiseazaGraf(graf);
+    
+    int nod1 = 1, nod2 = 2;
+    bool conectate = false;
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        if (graf->noduri[i].id == nod1) {
+            for (int j = 0; j < graf->noduri[i].numarVecini; j++) {
+                if (graf->noduri[i].vecini[j] == nod2) {
+                    conectate = true;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+    printf("Nodurile %d si %d sunt conectate direct? %s\n", 
+           nod1, nod2, conectate ? "DA" : "NU");
+    
+    nod1 = 1; nod2 = 3;
+    conectate = false;
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        if (graf->noduri[i].id == nod1) {
+            for (int j = 0; j < graf->noduri[i].numarVecini; j++) {
+                if (graf->noduri[i].vecini[j] == nod2) {
+                    conectate = true;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+    printf("Nodurile %d si %d sunt conectate direct? %s\n", 
+           nod1, nod2, conectate ? "DA" : "NU");
+    
+    for (int i = 0; i < graf->numarNoduri; i++) {
+        free(graf->noduri[i].vecini);
+    }
+    free(graf->noduri);
+    free(graf);
+    printf("\n");
+}
+
+int main() {
+    
+    exercitiul1_NumaraVecini();
+    exercitiul2_GasesteCelMaiPopular();
+    exercitiul3_VerificaConnexiune();
+    
+    return 0;
+}
